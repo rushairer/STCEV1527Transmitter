@@ -1,8 +1,7 @@
 #include "STC8G.h"
 #include "config.h"
-#include "uart.h"
 
-__code uint8_t ticks_us = (24000000UL / 9000 / 1000);
+__code uint8_t ticks_us = (24000000UL / 4500 / 1000);
 
 void DelayUs(uint16_t t)
 {
@@ -97,14 +96,24 @@ void SendEV1527Num(uint32_t num)
 
 void main(void)
 {
-    P5M0 = 0x30;
-    P5M1 = 0x00;
+    P5M0 |= 0x30;
+    P5M1 &= ~0x30;
+    P5DR &= ~0x30;
 
     P54 = 0;
     P55 = 0;
 
+    // P3M0 &= ~0x09;
+    // P3M1 |= 0x09;
+    // P3PU |= 0x09;
+    // P3IE |= 0x09;
+
     P3M0 = 0x00;
     P3M1 = 0x00;
+    P3PU |= 0x09;
+
+    P30 = 1;
+    P33 = 1;
 
     while (1) {
         if (P30 == 0) {
@@ -116,5 +125,15 @@ void main(void)
         } else if (P33 == 0) {
             SendEV1527Num(0x350029); // 发送 EV1527 数据
         }
+
+        // if (P30 == 0) {
+        //     if (P33 == 0) {
+        //         SendEV1527Num(0x350049); // 发送 EV1527 数据
+        //     } else {
+        //         SendEV1527Num(0x350019); // 发送 EV1527 数据
+        //     }
+        // } else if (P33 == 0) {
+        //     SendEV1527Num(0x350029); // 发送 EV1527 数据
+        // }
     }
 }
